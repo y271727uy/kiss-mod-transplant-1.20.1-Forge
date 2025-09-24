@@ -43,9 +43,11 @@ public class KissModClient {
     public static String responseMessageFormat = KissModConfig.loadResponseMessageConfig();
     public static int kissCooldown = KissModConfig.loadKissCooldownConfig();
     public static boolean doNotDisturb = KissModConfig.loadDoNotDisturbConfig();
+    public static boolean playerOnly = KissModConfig.loadPlayerOnlyConfig(); // 新增配置项
     private static KeyMapping kissKey;
     private static boolean wasKeyPressed = false;
     private static long lastTriggerTime = 0;
+    private static long lastTriggerTime2 = 0; // 右键的冷却时间
     private static final long TRIGGER_INTERVAL = 175;
     
     public static void init(IEventBus modEventBus) {
@@ -178,6 +180,28 @@ public class KissModClient {
                     })
                 )
         );
+        
+        // 添加玩家限定模式控制命令
+        dispatcher.register(
+            net.minecraft.commands.Commands.literal("kissmod-playeronly")
+                .executes(context -> {
+                    playerOnly = !playerOnly;
+                    KissModConfig.savePlayerOnlyConfig(playerOnly);
+                    String status = playerOnly ? "已开启" : "已关闭";
+                    context.getSource().sendSuccess(() -> Component.literal("仅玩家之间亲吻模式" + status), false);
+                    return 1;
+                })
+                .then(net.minecraft.commands.Commands.argument("state", BoolArgumentType.bool())
+                    .executes(context -> {
+                        boolean state = BoolArgumentType.getBool(context, "state");
+                        playerOnly = state;
+                        KissModConfig.savePlayerOnlyConfig(state);
+                        String status = state ? "已开启" : "已关闭";
+                        context.getSource().sendSuccess(() -> Component.literal("仅玩家之间亲吻模式" + status), false);
+                        return 1;
+                    })
+                )
+        );
     }
     
     @SubscribeEvent
@@ -186,13 +210,18 @@ public class KissModClient {
         
         // 检查冷却时间
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastTriggerTime < kissCooldown * 1000L) {
+        if (currentTime - lastTriggerTime2 < kissCooldown * 1000L) {
             return; // 仍在冷却中
         }
         
         if (event.getEntity().isShiftKeyDown()) {
             Entity target = event.getTarget();
             if (target != null) {
+                // 检查是否只允许玩家之间亲吻
+                if (playerOnly && !(target instanceof Player)) {
+                    return; // 如果只允许玩家之间亲吻，且目标不是玩家，则返回
+                }
+                
                 UUID senderUuid = null;
                 String senderName = "";
                 String targetName = "";
@@ -211,7 +240,7 @@ public class KissModClient {
                 KissC2SPacket packet = new KissC2SPacket(target.getUUID(), senderUuid, senderName, targetName, kissMessageFormat, responseMessageFormat, doNotDisturb);
                 KissMod.NETWORK_CHANNEL.sendToServer(packet);
                 triggerEffect(target, event.getLevel());
-                lastTriggerTime = currentTime; // 更新最后触发时间
+                lastTriggerTime2 = currentTime; // 更新最后触发时间
                 event.setCanceled(true);
             }
         }
@@ -234,6 +263,12 @@ public class KissModClient {
             Minecraft client = Minecraft.getInstance();
             Entity target = client.crosshairPickEntity;
             if (target != null && client.player != null) {
+                // 检查是否只允许玩家之间亲吻
+                if (playerOnly && !(target instanceof Player)) {
+                    wasKeyPressed = isKeyPressed;
+                    return; // 如果只允许玩家之间亲吻，且目标不是玩家，则返回
+                }
+                
                 UUID senderUuid = client.player.getUUID();
                 String senderName = client.player.getName().getString();
                 String targetName = "";

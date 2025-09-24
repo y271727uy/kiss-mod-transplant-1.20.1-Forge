@@ -11,6 +11,7 @@ public class KissModConfig {
     private static final String RESPONSE_MESSAGE_KEY = "responseMessage";
     private static final String KISS_COOLDOWN_KEY = "kissCooldown";
     private static final String DO_NOT_DISTURB_KEY = "doNotDisturb";
+    private static final String PLAYER_ONLY_KEY = "playerOnly";
 
     public static boolean loadConfig() {
         File configFile = new File(CONFIG_FILE);
@@ -30,15 +31,15 @@ public class KissModConfig {
     public static boolean loadChatMessageConfig() {
         File configFile = new File(CONFIG_FILE);
         if (!configFile.exists()) {
-            return true; // 默认开启
+            return false; // 默认关闭
         }
 
         try (InputStream input = new FileInputStream(configFile)) {
             Properties prop = new Properties();
             prop.load(input);
-            return Boolean.parseBoolean(prop.getProperty(CHAT_MESSAGE_KEY, "true"));
+            return Boolean.parseBoolean(prop.getProperty(CHAT_MESSAGE_KEY, "false"));
         } catch (IOException e) {
-            return true; // 默认开启
+            return false; // 默认关闭
         }
     }
     
@@ -99,6 +100,21 @@ public class KissModConfig {
             return Boolean.parseBoolean(prop.getProperty(DO_NOT_DISTURB_KEY, "false"));
         } catch (IOException e) {
             return false; // 默认关闭免打扰
+        }
+    }
+
+    public static boolean loadPlayerOnlyConfig() {
+        File configFile = new File(CONFIG_FILE);
+        if (!configFile.exists()) {
+            return true; // 默认只允许玩家之间亲吻
+        }
+
+        try (InputStream input = new FileInputStream(configFile)) {
+            Properties prop = new Properties();
+            prop.load(input);
+            return Boolean.parseBoolean(prop.getProperty(PLAYER_ONLY_KEY, "true"));
+        } catch (IOException e) {
+            return true; // 默认只允许玩家之间亲吻
         }
     }
 
@@ -230,6 +246,28 @@ public class KissModConfig {
         // 更新配置并保存
         try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
             prop.setProperty(DO_NOT_DISTURB_KEY, String.valueOf(state));
+            prop.store(output, "KissMod Configuration");
+        } catch (IOException e) {}
+    }
+
+    public static void savePlayerOnlyConfig(boolean state) {
+        File configDir = new File("config");
+        if (!configDir.exists()) {
+            configDir.mkdirs();
+        }
+
+        // 先读取现有配置
+        Properties prop = new Properties();
+        File configFile = new File(CONFIG_FILE);
+        if (configFile.exists()) {
+            try (InputStream input = new FileInputStream(configFile)) {
+                prop.load(input);
+            } catch (IOException e) {}
+        }
+
+        // 更新配置并保存
+        try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
+            prop.setProperty(PLAYER_ONLY_KEY, String.valueOf(state));
             prop.store(output, "KissMod Configuration");
         } catch (IOException e) {}
     }

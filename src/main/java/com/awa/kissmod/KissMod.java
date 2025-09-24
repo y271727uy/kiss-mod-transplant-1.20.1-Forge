@@ -60,6 +60,9 @@ public class KissMod {
         MinecraftForge.EVENT_BUS.register(this);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> KissModClient.init(modEventBus));
+        
+        // 初始化默认配置文件
+        initializeDefaultConfig();
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -89,5 +92,26 @@ public class KissMod {
     // 获取玩家免打扰状态
     public static boolean getPlayerDoNotDisturb(UUID playerUUID) {
         return PLAYER_DO_NOT_DISTURB_STATUS.getOrDefault(playerUUID, false);
+    }
+    
+    // 初始化默认配置文件
+    private void initializeDefaultConfig() {
+        // 确保配置目录存在
+        java.io.File configDir = new java.io.File("config");
+        if (!configDir.exists()) {
+            configDir.mkdirs();
+        }
+        
+        // 创建默认配置文件（如果不存在）
+        java.io.File configFile = new java.io.File("config/kissmod.properties");
+        if (!configFile.exists()) {
+            KissModConfig.saveConfig(true); // 默认启用右键功能
+            KissModConfig.saveChatMessageConfig(false); // 默认禁用聊天消息
+            KissModConfig.saveKissMessageConfig("%s对%s亲了亲并说爱你呦~"); // 默认亲吻消息
+            KissModConfig.saveResponseMessageConfig("%s窝也爱你喵~"); // 默认回应消息
+            KissModConfig.saveKissCooldownConfig(10); // 默认10秒冷却
+            KissModConfig.saveDoNotDisturbConfig(false); // 默认关闭免打扰
+            KissModConfig.savePlayerOnlyConfig(true); // 默认只允许玩家之间亲吻,你们一个个的亲人不要亲奇奇怪怪的东西！！！
+        }
     }
 }
