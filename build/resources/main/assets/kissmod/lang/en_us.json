@@ -1,0 +1,8 @@
+{
+  "key.kissmod.kiss": "Kiss",
+  "category.kissmod.keybindings": "Kiss Mod",
+  "kissmod.toggle.enabled": "Empty hand sneak right-click trigger is enabled",
+  "kissmod.toggle.disabled": "Empty hand sneak right-click trigger is disabled",
+  "kissmod.chat.enabled": "Kiss chat message is enabled",
+  "kissmod.chat.disabled": "Kiss chat message is disabled"
+}

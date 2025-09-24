@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="kissmod"
+version="1.0.0"
+displayName="Kiss Mod"
+logoFile="assets/kissmod/icon.png"
+authors="chicken_awa, lceLantern, Xiaoyu_2009"
+displayURL="https://space.bilibili.com/506597031"
+description='''
+Kiss!
+'''
+
+[[dependencies.kissmod]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.kissmod]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH" 

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: kiss-mod
+Specification-Vendor: chicken_awa, lceLantern, Xiaoyu_2009
+Specification-Version: 1
+Implementation-Title: kiss-mod-transplant-1.20.1-Forge
+Implementation-Version: 1.20.1-1.0.0
+Implementation-Vendor: chicken_awa, lceLantern, Xiaoyu_2009
+Implementation-Timestamp: 2025-09-24T12:42:06+0800
+
